@@ -1,0 +1,6 @@
+[submodule "bls-eth-go-binary"]
+	path = app/src/main/bls-eth-go-binary
+	url = https://github.com/herumi/bls-eth-go-binary
+[submodule "mcl"]
+	path = app/src/main/mcl
+	url = https://github.com/herumi/mcl
