@@ -17,13 +17,17 @@
 #include <cstring>
 #include <jni.h>
 #include <cinttypes>
-#include <android/log.h>
-#include <gmath.h>
-#include <gperf.h>
 #include <string>
+//#include <mcl/bn_c384_256.h>
+#include <mcl/bls12_381.hpp>
 
-#define LOGI(...) \
-  ((void)__android_log_print(ANDROID_LOG_INFO, "hello-libs::", __VA_ARGS__))
+using namespace mcl::bn;
+
+static struct Init {
+    Init() {
+        initPairing(mcl::BLS12_381);
+    }
+} g_init;
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -33,17 +37,9 @@
  */
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
-    // Just for simplicity, we do this right away; correct way would do it in
-    // another thread...
-    auto ticks = GetTicks();
-
-    for (auto exp = 0; exp < 32; ++exp) {
-        volatile unsigned val = gpower(exp);
-        (void) val;  // to silence compiler warning
-    }
-    ticks = GetTicks() - ticks;
-
-    LOGI("calculation time: %" PRIu64, ticks);
-
-    return env->NewStringUTF("Hello from JNI LIBS!");
+    Fr x, y;
+    x = 123;
+    y = 456;
+    x *= y;
+    return env->NewStringUTF(x.getStr().c_str());
 }

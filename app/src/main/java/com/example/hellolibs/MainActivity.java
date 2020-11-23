@@ -15,9 +15,10 @@
  */
 package com.example.hellolibs;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
 /*
  * Simple Java UI to trigger jni function. It is exactly same as Java code
  * in hello-jni.
