@@ -6,13 +6,8 @@ This is a sample of how to use mcl on Android
 
 ```
 git clone --recursive https://github.com/herumi/mcl-android
+cd mcl-android/app/src/main/cpp/mcl
+make android # make static libraries in mcl/lib/android/
 ```
-
-## restriction
-
-I'm not familiar with Android Studio, so could anyone tell me about the following restrictions?
-
-- use only C++ source
-  - How to compile `base64.ll` in [CMakeLits.txt](app/src/main/cpp/CMakeLists.txt).
-- support only C++ api
-  - How to set the path to the [com.herumi.mcl](app/src/main/cpp/mcl/ffi/java/com).
+Open mcl-android with Android Studio and build it.
+You can use C APIs.
