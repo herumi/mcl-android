@@ -19,13 +19,26 @@
 #include <cinttypes>
 #include <string>
 //#include <mcl/bn_c384_256.h>
-#include <mcl/bls12_381.hpp>
+#include <mcl/bn_c384_256.h>
+#include <exception>
 
-using namespace mcl::bn;
+#if _FORTIFY_SOURCE == 2
+extern "C" void *__memset_chk (void *dest, int val, size_t len, size_t dstlen)
+{
+    return memset(dest, val, len);
+}
+extern "C" void * __memcpy_chk (void *dest, const void *src, size_t len, size_t dstlen)
+{
+    return memcpy (dest, src, len);
+}
+#endif
 
 static struct Init {
     Init() {
-        initPairing(mcl::BLS12_381);
+        int ret = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
+        if (ret != 0) {
+          throw std::runtime_error("mcl init err");
+        }
     }
 } g_init;
 
@@ -37,9 +50,11 @@ static struct Init {
  */
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
-    Fr x, y;
-    x = 123;
-    y = 456;
-    x *= y;
-    return env->NewStringUTF(x.getStr().c_str());
+    mclBnFr x, y;
+    mclBnFr_setInt(&x, 123);
+    mclBnFr_setInt(&y, 200);
+    mclBnFr_add(&x, &x, &y);
+    char buf[256];
+    mclBnFr_getStr(buf, sizeof(buf), &x, 10);
+    return env->NewStringUTF(buf);
 }
