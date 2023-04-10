@@ -22,7 +22,7 @@
 #include <mcl/bn_c384_256.h>
 #include <exception>
 
-#if 0
+#if _FORTIFY_SOURCE == 2
 extern "C" void *__memset_chk (void *dest, int val, size_t len, size_t dstlen)
 {
     return memset(dest, val, len);
@@ -52,8 +52,8 @@ extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
     mclBnFr x, y;
     mclBnFr_setInt(&x, 123);
-    mclBnFr_setInt(&y, 3);
-    mclBnFr_mul(&x, &x, &y);
+    mclBnFr_setInt(&y, 200);
+    mclBnFr_add(&x, &x, &y);
     char buf[256];
     mclBnFr_getStr(buf, sizeof(buf), &x, 10);
     return env->NewStringUTF(buf);
