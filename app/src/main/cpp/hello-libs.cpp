@@ -19,7 +19,16 @@
 #include <cinttypes>
 #include <string>
 //#include <mcl/bn_c384_256.h>
+//#define MCL_C_API
+#ifdef MCL_C_API
 #include <mcl/bn_c384_256.h>
+#else
+#define MCL_DONT_USE_XBYAK
+#define MCL_MAX_BIT_SIZE 384
+#define MCL_MAX_FP_BIT_SIZE 384
+#define MCL_MAX_FR_BIT_SIZE 256
+#include <mcl/bn.hpp>
+#endif
 #include <exception>
 
 #if _FORTIFY_SOURCE == 2
@@ -35,10 +44,19 @@ extern "C" void * __memcpy_chk (void *dest, const void *src, size_t len, size_t 
 
 static struct Init {
     Init() {
+#ifdef MCL_C_API
         int ret = mclBn_init(MCL_BLS12_381, MCLBN_COMPILED_TIME_VAR);
         if (ret != 0) {
           throw std::runtime_error("mcl init err");
         }
+#else
+        try {
+            mcl::bn::initPairing(mcl::BLS12_381);
+        } catch (std::exception& e) {
+            printf("err %s\n", e.what());
+            throw std::runtime_error(e.what());
+        }
+#endif
     }
 } g_init;
 
@@ -50,6 +68,7 @@ static struct Init {
  */
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
+#ifdef MCL_C_API
     mclBnFr x, y;
     mclBnFr_setInt(&x, 123);
     mclBnFr_setInt(&y, 200);
@@ -57,4 +76,24 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz)
     char buf[256];
     mclBnFr_getStr(buf, sizeof(buf), &x, 10);
     return env->NewStringUTF(buf);
+#else
+    using namespace mcl::bn;
+    Fr x, y, z;
+    x = 50;
+    y = 12;
+    z = x * y;
+    G1 P;
+    G2 Q;
+    hashAndMapToG1(P, "abc", 3);
+    hashAndMapToG2(Q, "abc", 3);
+    GT e1;
+    pairing(e1, P, Q);
+    GT::pow(e1, e1, z);
+    P *= x;
+    Q *= y;
+    GT e2;
+    pairing(e2, P, Q);
+
+    return env->NewStringUTF(e1 == e2 ? "ok" : "ng");
+#endif
 }
