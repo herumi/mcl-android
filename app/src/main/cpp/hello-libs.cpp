@@ -78,22 +78,27 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz)
     return env->NewStringUTF(buf);
 #else
     using namespace mcl::bn;
+    std::string s;
     Fr x, y, z;
     x = 50;
     y = 12;
     z = x * y;
+    s += "z=" + z.getStr(10) + "\n";
     G1 P;
     G2 Q;
     hashAndMapToG1(P, "abc", 3);
+    s += "P=" + P.getStr(16) + "\n";
     hashAndMapToG2(Q, "abc", 3);
     GT e1;
     pairing(e1, P, Q);
+    s += "e=" + e1.getStr(16) + "\n";
     GT::pow(e1, e1, z);
     P *= x;
     Q *= y;
     GT e2;
     pairing(e2, P, Q);
+    s += e1 == e2 ? "ok" : "err";
 
-    return env->NewStringUTF(e1 == e2 ? "ok" : "ng");
+    return env->NewStringUTF(s.c_str());
 #endif
 }
