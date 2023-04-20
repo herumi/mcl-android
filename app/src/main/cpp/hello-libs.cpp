@@ -18,18 +18,7 @@
 #include <jni.h>
 #include <cinttypes>
 #include <string>
-//#include <mcl/bn_c384_256.h>
-//#define MCL_C_API
-#ifdef MCL_C_API
-#include <mcl/bn_c384_256.h>
-#else
-#define MCL_DONT_USE_XBYAK
-#define MCL_MAX_BIT_SIZE 384
-#define MCL_MAX_FP_BIT_SIZE 384
-#define MCL_MAX_FR_BIT_SIZE 256
-#include <mcl/bn.hpp>
-#endif
-#include <exception>
+#include "mcl_common.hpp"
 
 #if _FORTIFY_SOURCE == 2
 extern "C" void *__memset_chk (void *dest, int val, size_t len, size_t dstlen)
@@ -50,15 +39,14 @@ static struct Init {
           throw std::runtime_error("mcl init err");
         }
 #else
-        try {
-            mcl::bn::initPairing(mcl::BLS12_381);
-        } catch (std::exception& e) {
-            printf("err %s\n", e.what());
-            throw std::runtime_error(e.what());
-        }
+        mcl::bn::initPairing(mcl::BLS12_381);
 #endif
     }
 } g_init;
+
+#ifndef MCL_C_PI
+std::string test_func(int a, int b); // defined in test.cpp
+#endif
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -81,7 +69,7 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz)
     std::string s;
     Fr x, y, z;
     x = 50;
-    y = 12;
+    y = 11;
     z = x * y;
     s += "z=" + z.getStr(10) + "\n";
     G1 P;
@@ -98,6 +86,13 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz)
     GT e2;
     pairing(e2, P, Q);
     s += e1 == e2 ? "ok" : "err";
+#ifdef __ANDROID__
+    s += "\nandroid";
+#else
+    s += "\nnot defined";
+#endif
+    s += "\n";
+    s += test_func(3, 128);
 
     return env->NewStringUTF(s.c_str());
 #endif

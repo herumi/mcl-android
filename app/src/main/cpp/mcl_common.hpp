@@ -1,4 +1,7 @@
 #pragma once
+#ifndef __ANDROID__
+#define __ANDROID__ 1
+#endif
 
 //#define MCL_C_API
 #ifdef MCL_C_API
