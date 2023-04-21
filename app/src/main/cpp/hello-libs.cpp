@@ -20,7 +20,8 @@
 #include <string>
 #include "mcl_common.hpp"
 
-#if _FORTIFY_SOURCE == 2
+// not necessary if a library is built with _FORTIFY_SOURCE = 0
+#if 0 // _FORTIFY_SOURCE == 2
 extern "C" void *__memset_chk (void *dest, int val, size_t len, size_t dstlen)
 {
     return memset(dest, val, len);
